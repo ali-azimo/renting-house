@@ -1,6 +1,7 @@
 import express from 'express';
 import mongoose from 'mongoose';
 import dotenv from 'dotenv';
+import userRouter from './routes/userRoute.js';
 dotenv.config();
 
 
@@ -16,3 +17,5 @@ app.listen(3000, () => {
     }
 
 );
+//Import Routers
+app.use("/api/user", userRouter)
