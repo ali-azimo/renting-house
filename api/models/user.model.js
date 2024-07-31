@@ -17,7 +17,7 @@ const userSchema = new mongoose.Schema({
     },
     avatar: {
         type: String,
-        default: "https://www.google.com/url?sa=i&url=https%3A%2F%2Fwww.flaticon.com%2Ffree-icon%2Fuser_149071&psig=AOvVaw3Rya_0g16h0yNajW_esNhv&ust=1722513255707000&source=images&cd=vfe&opi=89978449&ved=0CBEQjRxqFwoTCNCHppWc0YcDFQAAAAAdAAAAABAE"
+        default: "https://static.vecteezy.com/system/resources/previews/009/292/244/original/default-avatar-icon-of-social-media-user-vector.jpg"
     },
 }, { timestamps: true });
 const User = mongoose.model('User', userSchema);
