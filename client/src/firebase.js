@@ -6,13 +6,12 @@ import { initializeApp } from "firebase/app";
 // Your web app's Firebase configuration
 const firebaseConfig = {
     apiKey: import.meta.env.VITE_FIREBASE_API_KEY,
-    authDomain: "imo-house.firebaseapp.com",
-    projectId: "imo-house",
-    storageBucket: "imo-house.appspot.com",
-    messagingSenderId: "34806006682",
-    appId: "1:34806006682:web:6dda9da87a9622a885b023"
+    authDomain: "imo-project-21187.firebaseapp.com",
+    projectId: "imo-project-21187",
+    storageBucket: "imo-project-21187.appspot.com",
+    messagingSenderId: "1082761372220",
+    appId: "1:1082761372220:web:77325240177a4b7c2bd939"
 };
 
 // Initialize Firebase
-
 export const app = initializeApp(firebaseConfig);
