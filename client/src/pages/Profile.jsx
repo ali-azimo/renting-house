@@ -1,14 +1,18 @@
 import {useSelector}from 'react-redux';
 import { useEffect, useRef, useState } from 'react';
-import {getStorage, ref, uploadBytesResumable} from 'firebase/storage';
+import {getDownloadURL, getStorage, ref, uploadBytesResumable} from 'firebase/storage';
+import { app } from '../firebase';
 
 export default function Profile() {
   const fileRef = useRef(null);
   const {currentUser} = useSelector((state)=>state.user);
   const [file, setFile]=useState(undefined);
   const [filPerc, setFilePerc]=useState(0);
+  const [fileUploadError, setFileUploadError] = useState(false);
+  const [formData, setFormData]=useState({})
   console.log(filPerc);
   console.log(file);
+  console.log(formData);
 
 
   useEffect(()=>{
@@ -25,11 +29,19 @@ export default function Profile() {
     uploadTask.on('storage_changed',
       (snapshot)=>{
         const progress = (snapshot.bytesTransferred / snapshot.totalBytes) * 100;
-        console.log('Upload is ' + progress + '% done');
         setFilePerc(Math.round(progress));
+      },
+      (error)=>{
+        setFileUploadError(true);
+      },
+      ()=>{
+        getDownloadURL(uploadTask.snapshot.ref).then
+        ((downlodURL)=>
+          setFormData({...formData, avatar: downlodURL})
+        );
       }
-    )
-  }
+    );
+  };
 
 
   return (
@@ -42,8 +54,22 @@ export default function Profile() {
         ref={fileRef} 
         hidden 
         accept='image/*'/>
-        <img onClick={()=>fileRef.current.click()} src={currentUser.avatar} alt='Profile' className='rounded-full h-24 w-24 object-cover cursor-pointer self-center mt-2'/>
+        <img onClick={()=>fileRef.current.click()} 
+        src={formData.avatar || currentUser.avatar} 
+        alt='Profile' 
+        className='rounded-full h-24 w-24 object-cover cursor-pointer self-center mt-2 bg-cover bg-center'/>
 
+<p className='text-sm self-center'>
+  {fileUploadError ? (
+    <span className='text-red-700'>Error Image uploading, choose valid image</span>
+  ) : filPerc > 0 && filPerc < 100 ? (
+    <span className='text-slate-700'>{`Uploading ${filPerc}%`}</span>
+  ) : filPerc === 100 ? (
+    <span className='text-green-700'>Uploaded Successfuly</span>
+  ) : (
+  ""
+)}
+</p>
         <input type="text" name="username" id="username" placeholder='username' className='border p-3 rounded-lg'/>
         <input type="emai" name="email" id="email" placeholder='email' className='border p-3 rounded-lg'/>
         <input type="password" name="password" id="password" placeholder='password' className='border p-3 rounded-lg'/>
