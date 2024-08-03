@@ -10,7 +10,10 @@ import { useDispatch } from 'react-redux';
 
 export default function Profile() {
   const fileRef = useRef(null);
-  const {currentUser} = useSelector((state)=>state.user);
+  const {
+    currentUser,
+    loading,
+    error} = useSelector((state)=>state.user);
   const [file, setFile]=useState(undefined);
   const [filPerc, setFilePerc]=useState(0);
   const [fileUploadError, setFileUploadError] = useState(false);
@@ -123,7 +126,9 @@ const handleSubmit = async (e) =>{
         onChange={handleChange}/>
 
 
-        <button className='bg-slate-700 text-white rounded-lg p-3 uppercase hover:opacity-95 disabled:opacity-80'>update</button>
+        <button disabled={loading} className='bg-slate-700 text-white rounded-lg p-3 uppercase hover:opacity-95 disabled:opacity-80'>
+          {loading ? 'Loading...' : "Upadate"}
+        </button>
       </form>
       <div className='flex justify-between mt-5'>
         <span className='text-red-700 cursor-pointer'>Delete acount</span>
