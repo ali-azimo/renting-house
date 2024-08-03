@@ -17,9 +17,9 @@ export default function Profile() {
   const [file, setFile]=useState(undefined);
   const [filPerc, setFilePerc]=useState(0);
   const [fileUploadError, setFileUploadError] = useState(false);
-  const [formData, setFormData]=useState({})
+  const [formData, setFormData]=useState({});
+  const [updateSuccess, setUpdateSuccess] = useState(false);
   const dispatch = useDispatch();
-  console.log(formData);
 
 
   useEffect(()=>{
@@ -69,6 +69,7 @@ const handleSubmit = async (e) =>{
       return;
     }
     dispatch(updateUserSuccess(data));
+    setUpdateSuccess(true);
   }catch(error){
     dispatch(updateUserFailure(error.message));
   }
@@ -134,6 +135,12 @@ const handleSubmit = async (e) =>{
         <span className='text-red-700 cursor-pointer'>Delete acount</span>
         <span className='text-red-700 cursor-pointer'>Sign out</span>
       </div>
+      <p className='text-red-700'>
+        {error?error:""}
+      </p>
+      <span className='text-green-700'>
+        {updateSuccess ? 'User is updated Sucessfuly' : ""}</span>
+
     </div>
   )
 }
