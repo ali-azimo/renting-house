@@ -6,15 +6,35 @@ import{
     uploadBytesResumable
 } from 'firebase/storage';
 import {app} from '../firebase';
+import {useSelector}from 'react-redux';
+import {Navigate, useNavigate} from 'react-router-dom';
 
 export default function CreateListing() {
+    const Navigate = useNavigate();
+    const {currentUser} = useSelector((state)=>state.user);
     const [files, setFiles] = useState([]); 
-    const [formData, seteFormData] = useState({
-        imageUrls: [],
-    });
-
+    
     const [imageUploadError, setImageUploadError] = useState(false);
     const [uploading, setUploading] = useState(false);
+    const [erroSubmit, setErrorSubmit] = useState(false);
+    const [loadingSubmit, setLoadingSubmit] = useState(false);
+
+
+    const [formData, seteFormData] = useState({
+        imageUrls: [],
+        name: "",
+        description: "",
+        address: "",
+        type: "rent",
+        bedroom: 1,
+        bathroom: 1,
+        regularPrice: 50,
+        discountPrice: 0,
+        offer: false,
+        parking: false,
+        finished: false,
+    });
+
 
     console.log(formData);
     const handleImageSubmit = (e) =>{
@@ -73,60 +93,206 @@ export default function CreateListing() {
             imageUrls: formData.imageUrls.filter((_, i)=> i !== index),
         });
     };
+    const handChange = (e) =>{
+        if(e.target.id === 'sale' || e.target.id === 'rent'){
+            seteFormData({
+                ...formData,
+                type: e.target.id
+            });
+        };
+        if(e.target.id === 'parking' || e.target.id === 'finished' || e.target.id === 'offer'){
+            seteFormData({
+                ...formData,
+                [e.target.id]: e.target.checked
+            });
+        }
 
+        if(
+            e.target.type === 'number' || 
+            e.target.type === 'text' || 
+            e.target.type === 'textarea')
+            {
+            seteFormData({
+                ...formData,
+                [e.target.id]: e.target.value,
+            });
+        }
+    };
+    const handleSubmit = async (e) =>{
+        e.preventDefault();
+        try{
+            if(formData.imageUrls.length < 1) return setErrorSubmit('You must upload at least one image');
+            if(+formData.regularPrice < +formData.discountPrice) return setErrorSubmit("Discount Price must be lower than regular Price");
+            setLoadingSubmit(true);
+            setErrorSubmit(false);
+            const res = await fetch('/api/listing/create',{
+                method: "POST",
+                headers:{
+                    "Content-Type": "application/json"
+                },
+                body: JSON.stringify({
+                    ...formData,
+                    userRef: currentUser._id,
+                }),
+            });
+            const data = await res.json();
+            setLoadingSubmit(false);
+            if(data.success === false){
+                setErrorSubmit(data.message);
+            }
+            Navigate(`/listing/${data._id}`);
+        }catch(error){
+            setErrorSubmit(error.message);
+            setLoadingSubmit(false);
+        }
+    }
   return (
     <main className='p-3 max-w-4xl mx-auto'>
         <h1 className='text-3xl font-semibold text-center my-7'>Create a Listing</h1>
 
-            <form className="flex flex-col sm:flex-row gap-4">
+            <form onSubmit={handleSubmit} className="flex flex-col sm:flex-row gap-4">
                 <div className='flex flex-col gap-4 flex-1'>
-                    <input type="text" placeholder='Name' className='boder p-3 rounded-lg' id='name' maxLength='62' minLength='10' required/>
+                    <input 
+                        type="text" 
+                        placeholder='Name' 
+                        className='boder p-3 rounded-lg' 
+                        id='name' 
+                        maxLength='62' 
+                        minLength='10' 
+                        required
+                        onChange={handChange}
+                        value={formData.name}
+                    />
 
-                    <textarea type="text" placeholder='Description' className='boder p-3 rounded-lg' id='description' required/>
+                    <textarea
+                        type="textarea" 
+                        placeholder='Description' 
+                        className='boder p-3 rounded-lg' 
+                        id='description' 
+                        required
+                        onChange={handChange}
+                        value={formData.description}
+                    />
 
-                    <input type="text" placeholder='adress' className='boder p-3 rounded-lg' id='adress' required/>
+                    <input 
+                        type="text" 
+                        placeholder='adress' 
+                        className='boder p-3 rounded-lg' 
+                        id='address' 
+                        required
+                        onChange={handChange}
+                        value={formData.address}
+                    />
 
                     <div className='flex gap-6 flex-wrap'>
                         <div className='flex gap-2'>
-                            <input type="checkbox" id='sale' className='w-5' />
+                            <input 
+                                type="checkbox" 
+                                id='sale' 
+                                className='w-5' 
+                                onChange={handChange}
+                                checked={formData.type === 'sale'}
+                            />
                             <span>Sell</span>
                         </div>
                         <div className='flex gap-2'>
-                            <input type="checkbox" id='parking' className='w-5' />
+                            <input 
+                                type="checkbox" 
+                                id='rent' 
+                                className='w-5' 
+                                onChange={handChange}
+                                checked={formData.type === 'rent'}
+                            />
+                            <span>Rent</span>
+                        </div>
+                        <div className='flex gap-2'>
+                            <input 
+                                type="checkbox" 
+                                id='parking' 
+                                className='w-5' 
+                                onChange={handChange}
+                                checked={formData.parking}
+                            />
                             <span>Parking</span>
                         </div>
                         <div className='flex gap-2'>
-                            <input type="checkbox" id='finished' className='w-5' />
+                            <input 
+                                type="checkbox" 
+                                id='finished' 
+                                className='w-5' 
+                                onChange={handChange}
+                                checked={formData.finished}
+                            />
                             <span>Finished</span>
                         </div>
                         <div className='flex gap-2'>
-                            <input type="checkbox" id='offer' className='w-5' />
+                            <input 
+                                type="checkbox" 
+                                id='offer' 
+                                className='w-5'
+                                onChange={handChange}
+                                checked={formData.offer} 
+                            />
                             <span>Offer</span>
                         </div>
                     </div>
                     <div className='flex flex-wrap gap-6'>
                         <div className='flex items-center gap-2'>
-                            <input type="number" id='bedrooms' min='1' max='10' required className='p-3 border border-gray-300 rounded-lg' />
+                            <input 
+                                type="number" 
+                                id='bedroom' 
+                                min='1' 
+                                max='10' 
+                                required 
+                                className='p-3 border border-gray-300 rounded-lg'
+                                onChange={handChange}
+                                value={formData.bedroom} />
                             <span>Beds</span>
                         </div>
                         <div className='flex items-center gap-2'>
-                            <input type="number" id='bathrooms' min='1' max='10' required className='p-3 border border-gray-300 rounded-lg' />
+                            <input 
+                                type="number" 
+                                id='bathroom' 
+                                min='1' 
+                                max='10' 
+                                required 
+                                className='p-3 border border-gray-300 rounded-lg'
+                                onChange={handChange}
+                                value={formData.bathroom} />
                             <span>Bathrooms</span>
                         </div>
                         <div className='flex items-center gap-2'>
-                            <input type="number" id='regularPrice' min='1' max='10' required className='p-3 border border-gray-300 rounded-lg' />
+                            <input 
+                                type="number" 
+                                id='regularPrice' 
+                                min='50' 
+                                max='1000000' 
+                                required 
+                                className='p-3 border border-gray-300 rounded-lg'
+                                onChange={handChange}
+                                value={formData.regularPrice} />
                             <div className='flex flex-col items-center'>                           
                                 <p>Regular price</p>
                                 <span className='text-xs'>($ / month)</span>
                             </div>
                         </div>
-                        <div className='flex items-center gap-2'>
-                            <input type="number" id='discountedPrice' min='1' max='10' required className='p-3 border border-gray-300 rounded-lg' />
+                        {formData.offer && (
+                            <div className='flex items-center gap-2'>
+                            <input 
+                                type="number" 
+                                id='discountPrice' 
+                                min='0' 
+                                max='1000000' 
+                                required 
+                                className='p-3 border border-gray-300 rounded-lg'
+                                onChange={handChange}
+                                value={formData.discountPrice} />
                             <div className='flex flex-col items-center'>                           
                                 <p>Discounted price</p>
                                 <span className='text-xs'>($ / month)</span>
                             </div>
                         </div>
+                        )}
                         
                     </div>
                 </div>
@@ -169,7 +335,10 @@ export default function CreateListing() {
                         ))
                     }
                     <button
-                    className='p-3 bg-slate-700 text-white rounded-lg uppercase hover:opacity-95 disabled:m-80'>Create Listening</button>
+                    className='p-3 bg-slate-700 text-white rounded-lg uppercase hover:opacity-95 disabled:m-80'>
+                        {loadingSubmit ? 'Creating...' : 'Create listing'}
+                    </button>
+                    {erroSubmit && <p className='text-red-700 text-sm'>{erroSubmit}</p>}
                 </div>
 
             </form>
