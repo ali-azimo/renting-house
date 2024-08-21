@@ -1,5 +1,4 @@
 import Listing from "../models/listingModel.js";
-import User from "../models/user.model.js";
 import { errorHandler } from "../utils/error.js";
 
 export const createListing = async(req, res, next) => {
@@ -87,7 +86,7 @@ export const getListings = async(req, res, next) => {
         }
 
         const searchTerm = req.query.searchTerm || '';
-        const sort = req.query.sort || 'createdAT';
+        const sort = req.query.sort || 'created_at';
         const order = req.query.order || 'desc';
 
 
