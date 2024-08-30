@@ -41,7 +41,8 @@ export default function About() {
 .</p>
         
   </div>
-  <div className="flex flex-wrap gap-4 items-center justify-center">
+  <div className="flex flex-wrap gap-8 items-center justify-center">
+
     <div className="text-center">
       <Link>
       +258822507746 <br />
@@ -58,7 +59,7 @@ export default function About() {
     +25884/875826662
 
     </div>
-    <div className="text-center">
+    <div className="text-center bg-slate-500 p-3 rounded-lg">
     Departmento Comercial  <br />
     +25884/872507746
     </div>

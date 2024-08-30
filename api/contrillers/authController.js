@@ -2,6 +2,7 @@ import User from "../models/user.model.js";
 import bcryptjs from 'bcryptjs';
 import { errorHandler } from "../utils/error.js";
 import jwt from 'jsonwebtoken';
+import nodemailer from 'nodemailer';
 
 export const singup = async(req, res, next) => {
     const { username, email, password } = req.body;
@@ -63,6 +64,39 @@ export const google = async(req, res, next) => {
                 .status(200)
                 .json(rest);
         }
+    } catch (error) {
+        next(error)
+    }
+}
+
+export const forgotPassword = async(req, res, next) => {
+    try {
+        const user = await User.findOne({ email: req.body.email });
+        if (user) {
+            return res.json({ message: "User not found" })
+        }
+        var transporter = nodemailer.createTransport({
+            service: 'gmail',
+            auth: {
+                user: 'webdesign.aejl@gmail.com',
+                pass: 'gzgrzmtfjodkqxht'
+            }
+        });
+
+        var mailOptions = {
+            from: 'webdesign.aejl@gmail.com',
+            to: email,
+            subject: 'Reset password',
+            text: `/api/resetPassWord/${token}`
+        };
+
+        transporter.sendMail(mailOptions, function(error, info) {
+            if (error) {
+                return res.json({ message: "Error sending email" })
+            } else {
+                console.log('Email sent: ' + info.response);
+            }
+        });
     } catch (error) {
         next(error)
     }
